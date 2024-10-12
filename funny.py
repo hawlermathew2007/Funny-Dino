@@ -2,6 +2,9 @@ from tkinter import *
 from PIL import Image, ImageTk
 import keyboard
 import random
+import threading
+import os
+import time
 
 # Note: must 4 directions, separate to 2 groups: West & East and South & North || Create Destination (!= current dino coordination); 
 # Must Reckon Limitation First (with the prerequisite: 300 pixels away dino and 500 pixels move maximum 
@@ -46,7 +49,7 @@ scale = desire_size/sample.width()
 img_width = int(sample.width() * scale)
 img_height = int(sample.height() * scale)
 
-initial_destination = [int(window.winfo_screenwidth()/2 - img_width - 150), int(window.winfo_screenheight()/2 - img_height - 100)]
+initial_destination = [int(window.winfo_screenwidth()/2 - img_width - 200), int(window.winfo_screenheight()/2 - img_height - 100)]
 
 x = -img_width
 y = 100
@@ -58,9 +61,6 @@ window.wm_attributes("-topmost", True)
 window.configure(background='black')
 window.overrideredirect(True)
 
-class Protangonist():
-	pass
-
 
 class Object():
 	def __init__(self, state):
@@ -70,10 +70,17 @@ class Object():
 	def update(self):
 		pass
 
-
 class Window(): # created by thing funny thing it could be funny or sacrasm
 	pass
 
+
+def check_close_signal():
+	while True:
+		if os.path.exists("close_signal.txt"):
+			os.remove("close_signal.txt")
+			window.destroy()
+			break
+		time.sleep(0.5)  # Check every second
 
 def destroy_window():
 	window.destroy()
@@ -96,7 +103,7 @@ def resizing_image(path):
 
 
 def generate_destination():
-	return [random.randint(0, window.winfo_screenwidth() - img_width), random.randint(0, window.winfo_screenheight() - img_height)]
+	return [random.randint(0, window.winfo_screenwidth() - img_width), random.randint(0, window.winfo_screenheight() - img_height - 50)]
 
 
 def idle(coordination, destination):
@@ -141,7 +148,6 @@ def move(coordination, destination): #coordination, destination
 	x_relate = coordination[0] - destination[0]
 	y_relate = coordination[1] - destination[1]
 
-	# print("Relate: ", x_relate, y_relate)
 	# print("Destination: ", destination)
 	# print("---------------------------")
 	# print("Coordination: ", coordination)
@@ -193,6 +199,9 @@ def move(coordination, destination): #coordination, destination
 
 def drag_window(event):
     window.geometry(f"+{int(event.x_root - img_width/2)}+{int(event.y_root - img_height/2)}")
+
+
+threading.Thread(target=check_close_signal, daemon=True).start()
 
 dino = resizing_image(dino_path)
 
