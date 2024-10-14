@@ -12,18 +12,19 @@ import time
 # the dino may be close to the computer screen side)
 # Stage 1: Must Locate the Dino first -> Decide the direction || random the direction via Limitation and Minimum Distance
 # Stage 2: From the nums of Direction decide Destination
-# Stage 3: Modify the Dino speed and Create movement
+# Stage 3: Modify the Dino walking_speed and Create movement
+# Add Cute mode and Devi mode (the dino will randomly drag the user cursor or drag sarcastic window LOL)
 
 window = Tk()
 window.title("Funny Dino")
+window_gap = 50
 
 # Path
-
 type_of_Dino = 'Blue'
-
 dino_path = f'sprites/{type_of_Dino}/dino.png'
 idle_path = f'sprites/{type_of_Dino}/Idle'
 walking_path = f'sprites/{type_of_Dino}/Walking'
+running_path = f'sprites/{type_of_Dino}/Running'
 
 # Sprite
 duplicated_sprites = []
@@ -38,9 +39,21 @@ walking_index = 0
 walking_sprites = [f'{walking_path}/walking1.png',f'{walking_path}/walking2.png',f'{walking_path}/walking3.png',f'{walking_path}/walking4.png',
 					f'{walking_path}/walking5.png',f'{walking_path}/walking6.png']
 
+running_index = 0
+running_sprites = [f'{running_path}/running1.png',f'{running_path}/running2.png',f'{running_path}/running3.png',f'{running_path}/running4.png',
+					f'{running_path}/running5.png',f'{running_path}/running6.png', f'{running_path}/running7.png']
+
+# Child Window
+idtitle = -1
+trolling_images = [] # mostly meme :)) # This actually in the dict with title in a list
+trolling_titles = ['Your mom', 'CDs... CEE DEEZ NUT', 'The diffence between you and the door', 'You monkey']
+trollWindow_positions = [[], []]
+
 # Velocity of the Dino
-speed = 50 # 100 millisecond
-step = 2
+walking_speed = 50 # in millisecond
+running_speed = 25
+walking_step = 2
+running_step = 4
 
 # Value for Dino Size and Screen Resolution
 sample = PhotoImage(file=dino_path)
@@ -61,19 +74,6 @@ window.wm_attributes("-topmost", True)
 window.configure(background='black')
 window.overrideredirect(True)
 
-
-class Object():
-	def __init__(self, state):
-		super.__init__()
-		self.state = state # falling, staying
-
-	def update(self):
-		pass
-
-class Window(): # created by thing funny thing it could be funny or sacrasm
-	pass
-
-
 def check_close_signal():
 	while True:
 		if os.path.exists("close_signal.txt"):
@@ -84,6 +84,29 @@ def check_close_signal():
 
 def destroy_window():
 	window.destroy()
+
+def address_deletedWindow(title, troll_window):
+	print(f'This \'{title}\' window is closed')
+	print('And the Dino gonna chase you!')
+	troll_window.destroy()# What if the user close too many times?
+
+def launch_trolling_window(width, height, x, y):
+
+    child_window = Toplevel(window)
+
+    random_trollingTitles = random.choice(trolling_titles)
+
+	# will be working with the child window position and there will randomly be a big window in the mid LOL
+    child_window.title(random_trollingTitles)
+    child_window.geometry(f"{width}x{height}+{int(x)}+{int(y)}")
+    child_window.resizable(False, False)
+    child_window.wm_attributes("-topmost", True)
+
+    child_window.protocol("WM_DELETE_WINDOW", 
+    	lambda: address_deletedWindow(random_trollingTitles, child_window)
+    )
+
+    return child_window
 
 
 def resizing_image(path):
@@ -103,11 +126,11 @@ def resizing_image(path):
 
 
 def generate_destination():
-	return [random.randint(0, window.winfo_screenwidth() - img_width), random.randint(0, window.winfo_screenheight() - img_height - 50)]
+	return [random.randint(window_gap, window.winfo_screenwidth() - img_width - window_gap), random.randint(window_gap, window.winfo_screenheight() - img_height - window_gap)]
 
 
 def idle(coordination, destination):
-	# change the image of the dino with sprite with the speed of 50 maybe
+	# change the image of the dino with sprite with the walking_speed of 50 maybe
 	# the duration of the idle should be random
 	# at the end of the last image, the idle_time should randomly be extend to last longer.
 	global idle_index
@@ -116,6 +139,7 @@ def idle(coordination, destination):
 	global duplicated_sprites
 	global startOf_idleDuplication
 
+	# animation
 	if startOf_idleDuplication:
 		duplicated_sprites = idle_sprites * random.randint(3, 6)
 		startOf_idleDuplication = False
@@ -126,16 +150,40 @@ def idle(coordination, destination):
 
 	idle_index += 1
 	
+	# choose check if the animation is finished and decide to do devi action or continue wandering
 	if idle_index >= len(duplicated_sprites):
 		startOf_idleDuplication = True
 		idle_sprites = [f'{idle_path}/idle1.png',f'{idle_path}/idle2.png',f'{idle_path}/idle3.png',f'{idle_path}/idle4.png']
 		idle_index = 0
 		duplicated_sprites = []
-		window.after(speed, move, coordination, destination)
+		choosing_action = random.randint(1,3)
+
+		if choosing_action == 1:
+			child_window_width = 400 # replace the number by the image size
+			child_window_height = 400
+			child_window_gap = 50
+
+			child_window_x = random.choice([-width + window_gap, window.winfo_screenwidth() - window_gap])
+			child_window_y = random.choice([child_window_gap, window.winfo_screenheight()-height-child_window_gap])
+
+			drag_destination = [child_window_x, child_window_y + child_window_height/2 - img_height/2]
+			troll_window = launch_trolling_window(child_window_width, child_window_height, child_window_x, child_window_y)
+
+			window.after(running_speed, drag_window, coordination, drag_destination, troll_window)
+			# window.after(walking_speed, move, coordination, destination)
+		else:
+			window.after(walking_speed, move, coordination, destination)
+
 		return
 
+	# continue idle if havent done animation
 	window.after(idle_time, idle, coordination, destination)
 
+def drag_window(coordination, destination):
+	# will have first destination with normal running
+	# and second destination with reverse running
+	# if second destination reached move to idle
+	pass
 
 def move(coordination, destination): #coordination, destination
 
@@ -145,6 +193,7 @@ def move(coordination, destination): #coordination, destination
 	global label
 	global dino_is_flipped
 
+	# is created to know what the dino's direction
 	x_relate = coordination[0] - destination[0]
 	y_relate = coordination[1] - destination[1]
 
@@ -153,26 +202,26 @@ def move(coordination, destination): #coordination, destination
 	# print("Coordination: ", coordination)
 	# print("---------------------------")
 
-	# the Dino when changing Direction much depend on x_relate only
-
+	# animation and walking
 	walking_image = resizing_image(walking_sprites[walking_index])
 
 	if x_relate > 0:
 		dino_is_flipped = True
-		x -= step
+		x -= walking_step
 	else:
 		dino_is_flipped = False
-		x += step
+		x += walking_step
 
 	if y_relate > 0:
-		y -= int(step * (random.random() + 1))
+		y -= int(walking_step * (random.random() + 1))
 	else:
-		y += int(step * (random.random() + 1))
+		y += int(walking_step * (random.random() + 1))
 
 	label.config(image=walking_image)
 
 	walking_index += 1
 
+	# check if walking cycle is finished then set it to be repeated
 	if walking_index >= len(walking_sprites):
 		walking_index = 0
 
@@ -186,6 +235,7 @@ def move(coordination, destination): #coordination, destination
 
 	coordination = [x, y]
 
+	# move to idle if destination is reached
 	if coordination == destination:
 		walking_index = 0
 		x = destination[0]
@@ -194,11 +244,8 @@ def move(coordination, destination): #coordination, destination
 		idle(coordination, destination)
 		return
 
-	window.after(speed, move, coordination, destination)
-
-
-def drag_window(event):
-    window.geometry(f"+{int(event.x_root - img_width/2)}+{int(event.y_root - img_height/2)}")
+	# continue walking
+	window.after(walking_speed, move, coordination, destination)
 
 
 threading.Thread(target=check_close_signal, daemon=True).start()
@@ -209,20 +256,11 @@ keyboard.add_hotkey("shift+6", destroy_window)
 
 label = Label(window, bg='black', width=img_width, height=img_height, image= dino)
 label.place(x=0, y=0, width=img_width, height=img_height)
-label.bind('<Button-1>', drag_window)
-label.bind("<B1-Motion>", drag_window)
+
 
 move([x, y], initial_destination) # should del initial_destination to generate_destination
 
 window.mainloop()
-
-
-# # Open New Window
-# def launch():
-#     global second
-#     second = Toplevel()
-#     second.title("Child Window")
-#     second.geometry("400x400")
  
 # # Show the window
 # def show():
@@ -232,10 +270,12 @@ window.mainloop()
 # def hide():
 #     second.withdraw()
  
-# # Add Buttons
-# Button(window, text="launch Window", command=launch).pack(pady=10)
-# Button(window, text="Show", command=show).pack(pady=10)
-# Button(window, text="Hide", command=hide).pack(pady=10)
+# def drag_window(event):
+#     window.geometry(f"+{int(event.x_root - img_width/2)}+{int(event.y_root - img_height/2)}")
+
+# label.bind('<Button-1>', drag_window)
+# label.bind("<B1-Motion>", drag_window)
+
 # cute dino: has angry mode (when user approach the close dino button or close the tab), get hurt version
 # smirking[evil] version (occurs when it poop or drag a sarcastic note) and falling baby
 # cute dino must have sound lol
