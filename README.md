@@ -5,7 +5,7 @@ This project is made to give the user a cute little dino that walks around your 
 **Instruction:**
 - cd to the directory that contains the funny.py files
 - run "python funny.py" to execute the Dino
-- To close it, you can use key Shift + 6
+- To close it, you can use key Shift + 6 or execute the close_dino file by running "python close_dino.py"
 
 **@SampersonMakes** (Youtube) - Desktop Goose Link: https://samperson.itch.io/desktop-goose
 
