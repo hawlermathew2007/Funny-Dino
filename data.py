@@ -1,5 +1,5 @@
 # Just Simply the Gap between the dino and the window side to make it look natural
-window_gap = 50
+window_gap = 80
 
 # About Dino Path
 type_of_Dino = 'Blue'
@@ -28,10 +28,11 @@ walking_sprites = [f'{walking_path}/walking1.png',f'{walking_path}/walking2.png'
 running_index = 0
 running_sprites = [f'{running_path}/running1.png',f'{running_path}/running2.png',f'{running_path}/running3.png',f'{running_path}/running4.png',
 					f'{running_path}/running5.png',f'{running_path}/running6.png', f'{running_path}/running7.png']
+running_destination_queue = 0
 
 # Velocity of the Dino
-walking_speed = 50 # in millisecond
+walking_speed = 35 # in millisecond
 running_speed = 25
 walking_step = 2
-running_step = 4
+running_step = 3
 
