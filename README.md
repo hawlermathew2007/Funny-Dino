@@ -14,7 +14,7 @@ This project is made to give the user a cute little dino that walks around your 
 ```
 - To close it, you can use the key Shift + 6 or Open another Command Prompt to execute the close_dino file by running "python close_dino.py"
 ```dif
-> C:\Your\Current\Path\Funny Dino> python close.py
+> C:\Your\Current\Path\Funny Dino> python close_dino.py
 ```
 
 _Credits:_
