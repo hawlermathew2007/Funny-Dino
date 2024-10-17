@@ -29,6 +29,7 @@ running_index = 0
 running_sprites = [f'{running_path}/running1.png',f'{running_path}/running2.png',f'{running_path}/running3.png',f'{running_path}/running4.png',
 					f'{running_path}/running5.png',f'{running_path}/running6.png', f'{running_path}/running7.png']
 running_destination_queue = 0
+dino_is_dragging = False
 
 # Velocity of the Dino
 walking_speed = 35 # in millisecond

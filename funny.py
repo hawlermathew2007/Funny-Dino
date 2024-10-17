@@ -7,7 +7,9 @@ import os
 import time
 from data import *
 
-# Problems: the dino not being at the topmost when the child window appear
+# Problems: the dino not being at the topmost when the child window appear and the child window can be close and drag by user 
+# while the dino is locating it -> make the window cannot be minimized, focused and close [not let the user minimize the program]
+# should I make the Dino always be focused or always be lift?
 
 window = Tk()
 window.title("Funny Dino")
@@ -34,12 +36,24 @@ trolling_windows = [ # mostly meme :)) # This actually in the dict with title in
 		"image_path": f'{imagesMeme_path}/pee_rizz.jpg'
 	},
 	{
-		"title": 'Cat with Roblox Rizz :}',
+		"title": 'Roblox Cat :}',
 		"image_path": f'{imagesMeme_path}/rizz_cat.jfif'
 	},
 	{
 		"title": 'Cat can Romantic Rizz (O-o)',
 		"image_path": f'{imagesMeme_path}/rizz_cat.jfif'
+	},
+	{
+		"title": 'JOKESONYOU >:DD',
+		"image_path": f'{imagesMeme_path}/cat-pointing-laughing.png'
+	},
+	{
+		"title": 'GYATTT',
+		"image_path": f'{imagesMeme_path}/rizz.png'
+	},
+	{
+		"title": 'Dirty Dino SOmeTiMes',
+		"image_path": f'{imagesMeme_path}/villain_rizz.png'
 	},
 	{
 		"title": 'GYATT Trump Lecture',
@@ -88,9 +102,11 @@ def destroy_window():
 
 
 def address_deletedWindow(title, troll_window):
-	print(f'This \'{title}\' window is closed')
-	print('And the Dino gonna chase you!')
-	troll_window.destroy()# What if the user close too many times?
+	print('--Is the Dino Dragging[child_window]?: ', dino_is_dragging)
+	if not dino_is_dragging:
+		print(f'This \'{title}\' window is closed')
+		print('And the Dino gonna chase you!')
+		troll_window.destroy()# What if the user close too many times?
 
 
 def launch_trolling_window(title, image, x, y):
@@ -101,6 +117,7 @@ def launch_trolling_window(title, image, x, y):
 	child_window.title(title)
 	child_window.resizable(False, False)
 	child_window.wm_attributes("-topmost", True)
+	child_window.attributes("-toolwindow", True)
 
 	# Create a label to display the image
 	label = Label(child_window, image=image)
@@ -108,6 +125,9 @@ def launch_trolling_window(title, image, x, y):
 	label.pack()  # Pack the label to add it to the window
 	
 	child_window.geometry(f"+{int(x)}+{int(y)}")
+
+	child_window.bind("<Button-1>", lambda e: None)
+	child_window.bind("<B1-Motion>", lambda e: None)
 
 	child_window.protocol("WM_DELETE_WINDOW", 
 		lambda: address_deletedWindow(title, child_window)
@@ -145,6 +165,7 @@ def idle(coordination, destination):
 	global label
 	global duplicated_sprites
 	global startOf_idleDuplication
+	global dino_is_dragging
 
 	# animation
 	if startOf_idleDuplication:
@@ -191,8 +212,8 @@ def idle(coordination, destination):
 			print('Child Size: ', child_window_width, child_window_height)
 			print('Child Coordination: ', child_window_x, child_window_y)
 
-			if window_gap:
-				pass
+			dino_is_dragging = True
+			print('--Is the Dino Dragging[idle]?: ', dino_is_dragging)
 
 			drag_x = child_window_x
 			drag_y = child_window_y + child_window_height/2 - img_height/2
@@ -224,6 +245,7 @@ def drag_window(coordination, destination, target_window):
 	global running_destination_queue
 	global label
 	global dino_is_flipped
+	global dino_is_dragging
 
 	# is created to know what the dino's direction
 	x_relate = coordination[0] - destination[0]
@@ -288,14 +310,21 @@ def drag_window(coordination, destination, target_window):
 		if running_destination_queue == 0:
 			running_sprites.reverse()
 			running_destination_queue = 1
-			drag_length = target_window.winfo_width()*2 + window_gap + img_width + 10
+			random_window_gap = int(window_gap * (random.random() + 1))
+			drag_length = target_window.winfo_width()*2 + random_window_gap + img_width + 10
 			if target_window.winfo_x() > window.winfo_screenwidth()/2:
-				drag_length = -(target_window.winfo_width() + window_gap + img_width + 10)
-			random_drag_length = int(drag_length * (random.random() + 1))
-			destination = [target_window.winfo_x() + random_drag_length, target_window.winfo_y() + target_window.winfo_height()/2 - img_height/2] # 'New Second Destination'
+				drag_length = -(target_window.winfo_width() + random_window_gap + img_width + 10)
+			destination = [target_window.winfo_x() + drag_length, target_window.winfo_y() + target_window.winfo_height()/2 - img_height/2] # 'New Second Destination'
 		else:
+			window.wm_attributes("-topmost", True)
+			window.lift()
+			window.focus_force()
 			running_sprites.reverse()
 			running_destination_queue = 0
+			dino_is_dragging = False
+			print('--Is the Dino Dragging?[end]: ', dino_is_dragging)
+			target_window.unbind("<Button-1>")
+			target_window.unbind("<B1-Motion>")
 			destination = generate_destination()
 			idle(coordination, destination)
 			return
