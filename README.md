@@ -4,6 +4,11 @@ This project is made to give the user a cute little dino that walks around your 
 
 **Instruction:**
 - You need to download Python first. Link: https://www.python.org/downloads/
+- You also need to pip install keyboard and Pillow
+```dif
+> C:\Your\Current\Path> pip install keyboard
+> C:\Your\Current\Path> pip install Pillow
+```
 - Open Command Prompt and cd to the directory that contains the funny.py files
 ```dif
 > C:\Your\Current\Path> cd "Funny Dino"
