@@ -11,6 +11,8 @@ from data import *
 # while the dino is locating it -> make the window cannot be minimized, focused and close [not let the user minimize the program]
 # should I make the Dino always be focused or always be lift?
 
+# Problem: set limit of meme review in the user screen. BTW, why the fuck the Dino is so buggy
+
 window = Tk()
 window.title("Funny Dino")
 
@@ -21,50 +23,67 @@ childWindow_width_limitation = window.winfo_screenwidth()/4
 trolling_windows = [ # mostly meme :)) # This actually in the dict with title in a list
 	{
 		"title": 'DARE DEVILLL',
-		"image_path": f'{imagesMeme_path}/threat.jpg'
+		"path": f'{imagesMeme_path}/threat.jpg',
+		"replica": 0
 	},
 	{
 		"title": 'Uhmm... Terrorist Jutsu',
-		"image_path": f'{imagesMeme_path}/holy_damn.png'
+		"path": f'{imagesMeme_path}/holy_damn.png',
+		"replica": 0
+	},
+	{
+		"title": 'SMELL DA SUXY ASS',
+		"path": f'{gifsMeme_path}/among_us_twerking.gif',
+		"replica": 0
 	},
 	{
 		"title": 'MEOW MEOW, THE CAT CAN MEWWW',
-		"image_path": f'{imagesMeme_path}/mewing_cat.jpeg'
+		"path": f'{imagesMeme_path}/mewing_cat.jpeg',
+		"replica": 0
 	},
 	{
 		"title": 'Hmmm, insanitary meow meow rizz :D',
-		"image_path": f'{imagesMeme_path}/pee_rizz.jpg'
+		"path": f'{imagesMeme_path}/pee_rizz.jpg',
+		"replica": 0
 	},
 	{
 		"title": 'Roblox Cat :}',
-		"image_path": f'{imagesMeme_path}/rizz_cat.jfif'
+		"path": f'{imagesMeme_path}/rizz_cat.jfif',
+		"replica": 0
 	},
 	{
 		"title": 'Cat can Romantic Rizz (O-o)',
-		"image_path": f'{imagesMeme_path}/rizz_cat.jfif'
+		"path": f'{imagesMeme_path}/rizz_cat.jfif',
+		"replica": 0
 	},
 	{
 		"title": 'JOKESONYOU >:DD',
-		"image_path": f'{imagesMeme_path}/cat-pointing-laughing.png'
+		"path": f'{imagesMeme_path}/cat-pointing-laughing.png',
+		"replica": 0
 	},
 	{
 		"title": 'GYATTT',
-		"image_path": f'{imagesMeme_path}/rizz.png'
+		"path": f'{imagesMeme_path}/rizz.png',
+		"replica": 0
 	},
 	{
 		"title": 'Dirty Dino SOmeTiMes',
-		"image_path": f'{imagesMeme_path}/villain_rizz.png'
+		"path": f'{imagesMeme_path}/villain_rizz.png',
+		"replica": 0
 	},
 	{
 		"title": 'GYATT Trump Lecture',
-		"image_path": f'{imagesMeme_path}/trump_mewing.jpg'
+		"path": f'{imagesMeme_path}/trump_mewing.jpg',
+		"replica": 0
 	},
 	{
 		"title": 'Your Bro\'s Face when hEAr YoUr jOkes',
-		"image_path": f'{imagesMeme_path}/funny_dog.png'
+		"path": f'{imagesMeme_path}/funny_dog.png',
+		"replica": 0
 	}
 	# 'Your mom', 'CDs... CEE DEEZ NUT', 'The diffence between you and the door', 'You monkey'
 ]
+max_replica = 3
 
 # Value for Dino Size and Screen Resolution
 sample = PhotoImage(file=dino_path)
@@ -101,15 +120,27 @@ def destroy_window():
 	window.destroy()
 
 
+def findObj_via_title(title, do):
+	for trolling_window in trolling_windows: # modify the replica if the meme is added
+		if trolling_window['title'] == title:
+			if do == 'add':
+				trolling_window['replica'] += 1
+			if do == 'subtract':
+				trolling_window['replica'] -= 1
+			if trolling_window['replica'] > max_replica:
+				trolling_window['replica'] = max_replica
+			print(trolling_window)
+
+
 def address_deletedWindow(title, troll_window):
-	print('--Is the Dino Dragging[child_window]?: ', dino_is_dragging)
 	if not dino_is_dragging:
 		print(f'This \'{title}\' window is closed')
 		print('And the Dino gonna chase you!')
+		findObj_via_title(title, 'subtract')
 		troll_window.destroy()# What if the user close too many times?
 
 
-def launch_trolling_window(title, image, x, y):
+def launch_trolling_window(title, image, x, y, frames, nums_frames):
 
 	child_window = Toplevel(window)
 
@@ -133,7 +164,26 @@ def launch_trolling_window(title, image, x, y):
 		lambda: address_deletedWindow(title, child_window)
 	)
 
+	findObj_via_title(title, 'add')
+	
+	# handle gif here
+	if len(frames) > 0:
+		animation_gif(child_window, label, frames, 1, nums_frames)
+
 	return child_window
+
+
+def animation_gif(gif_window, gif_label, gif_frame, current_frame, nums_frames): # animation gif
+	
+	image = gif_frame[current_frame]
+
+	gif_label.configure(image = image)
+	current_frame += 1
+
+	if current_frame == nums_frames:
+		current_frame = 0 # reset the current_frame to 0 when end is reached
+
+	gif_window.after(50, lambda: animation_gif(gif_window, gif_label, gif_frame, current_frame, nums_frames))
 
 
 def resizing_image_for_dino(path):
@@ -190,21 +240,38 @@ def idle(coordination, destination):
 
 		if choosing_action == 1 and dino_mode == 'Devi': # Only be activated in Devi mode #  
 
-			random_trollingWindow = random.choice(trolling_windows)
+			filtered_window = list(filter(lambda window: window['replica'] < max_replica, trolling_windows))
+			if len(filtered_window) == 0: # if all of the window alr reached max replica then just randomly choose all of them
+				filtered_window = trolling_windows
+			random_trollingWindow = random.choice(filtered_window) # use filter to filter out the duplicated meme
+			random_trollingWindow_path = random_trollingWindow['path']
 			
-			meme_img = Image.open(random_trollingWindow['image_path'])  # Update with your image path
-			print('Meme image Size: ', meme_img.size)
+			meme = Image.open(random_trollingWindow_path)  # Update with your image path
+			print('Meme image Size: ', meme.size)
 
-			child_window_width, child_window_height = meme_img.size
+			child_window_width, child_window_height = meme.size
 
 			# check image size
 			if child_window_height > childWindow_width_limitation:
 				child_window_scale = childWindow_width_limitation/child_window_width
 				child_window_width = child_window_width*child_window_scale
 				child_window_height = child_window_height*child_window_scale
-				meme_img = meme_img.resize((int(child_window_width), int(child_window_height)))
 
-			memeFR = ImageTk.PhotoImage(meme_img)
+			# handle gif here
+			photoimage_gifs = []
+			frames = 0
+			if '.gif' in random_trollingWindow_path:
+				frames = meme.n_frames # number of frames
+				for i in range(frames):
+					meme.seek(i)
+					resize_meme = meme.resize((int(child_window_width), int(child_window_height)), Image.LANCZOS)
+					photoimage_gifs.append(ImageTk.PhotoImage(resize_meme))
+				memeFR = photoimage_gifs[0]
+
+			else:
+				meme = meme.resize((int(child_window_width), int(child_window_height)))
+				memeFR = ImageTk.PhotoImage(meme)
+
 
 			child_window_x = random.choice([-child_window_width-img_width, window.winfo_screenwidth()+img_width])
 			child_window_y = random.choice([window_gap, window.winfo_screenheight() - child_window_height - window_gap])
@@ -213,7 +280,6 @@ def idle(coordination, destination):
 			print('Child Coordination: ', child_window_x, child_window_y)
 
 			dino_is_dragging = True
-			print('--Is the Dino Dragging[idle]?: ', dino_is_dragging)
 
 			drag_x = child_window_x
 			drag_y = child_window_y + child_window_height/2 - img_height/2
@@ -222,9 +288,9 @@ def idle(coordination, destination):
 				drag_x += child_window_width
 
 			drag_destination = [drag_x, drag_y]
-			troll_window = launch_trolling_window(random_trollingWindow['title'], memeFR, child_window_x, child_window_y)
+			troll_window = launch_trolling_window(random_trollingWindow['title'], memeFR, child_window_x, child_window_y, photoimage_gifs, frames)
 
-			window.after(running_speed, drag_window, coordination, drag_destination, troll_window)
+			window.after(running_speed, running, coordination, drag_destination, troll_window)
 
 		else:
 			window.after(walking_speed, walking, coordination, destination)
@@ -235,7 +301,7 @@ def idle(coordination, destination):
 	window.after(idle_time, idle, coordination, destination)
 
 
-def drag_window(coordination, destination, target_window):
+def running(coordination, destination, target_window): # could need a type parameter like "chase" or "drag_meme"
 
 	# have to work on the child window about "how to drag itself"
 
@@ -322,7 +388,6 @@ def drag_window(coordination, destination, target_window):
 			running_sprites.reverse()
 			running_destination_queue = 0
 			dino_is_dragging = False
-			print('--Is the Dino Dragging?[end]: ', dino_is_dragging)
 			target_window.unbind("<Button-1>")
 			target_window.unbind("<B1-Motion>")
 			destination = generate_destination()
@@ -330,7 +395,7 @@ def drag_window(coordination, destination, target_window):
 			return
 
 	# continue running
-	window.after(running_speed, drag_window, coordination, destination, target_window)
+	window.after(running_speed, running, coordination, destination, target_window)
 
 
 def walking(coordination, destination): #coordination, destination
@@ -402,9 +467,10 @@ dino = resizing_image_for_dino(dino_path)
 
 keyboard.add_hotkey("shift+6", destroy_window)
 
+window.bind('<Double-1>', lambda e: print('- You double-clicked the Dino'))
+
 label = Label(window, bg='black', width=img_width, height=img_height, image= dino)
 label.place(x=0, y=0, width=img_width, height=img_height)
-
 
 walking([x, y], initial_destination) # should del initial_destination to generate_destination
 
@@ -418,11 +484,11 @@ window.mainloop()
 # def hide():
 #     second.withdraw()
  
-# def drag_window(event):
+# def running(event):
 #     window.geometry(f"+{int(event.x_root - img_width/2)}+{int(event.y_root - img_height/2)}")
 
-# label.bind('<Button-1>', drag_window)
-# label.bind("<B1-Motion>", drag_window)
+# label.bind('<Button-1>', running)
+# label.bind("<B1-Motion>", running)
 
 # cute dino: has angry mode (when user approach the close dino button or close the tab), get hurt version
 # smirking[evil] version (occurs when it poop or drag a sarcastic note) and falling baby

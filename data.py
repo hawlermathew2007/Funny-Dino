@@ -12,6 +12,9 @@ running_path = f'sprites/{type_of_Dino}/Running'
 imagesMeme_path = 'meme/images'
 gifsMeme_path = 'meme/gifs'
 
+# Gif handle variable
+
+
 # Sprite
 duplicated_sprites = []
 dino_is_flipped = False
