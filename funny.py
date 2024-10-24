@@ -37,6 +37,11 @@ trolling_windows = [ # mostly meme :)) # This actually in the dict with title in
 		"replica": 0
 	},
 	{
+		"title": 'Old. but Gold meme :)',
+		"path": f'{gifsMeme_path}/rick_roll.gif',
+		"replica": 0
+	},
+	{
 		"title": 'MEOW MEOW, THE CAT CAN MEWWW',
 		"path": f'{imagesMeme_path}/mewing_cat.jpeg',
 		"replica": 0
@@ -53,7 +58,7 @@ trolling_windows = [ # mostly meme :)) # This actually in the dict with title in
 	},
 	{
 		"title": 'Cat can Romantic Rizz (O-o)',
-		"path": f'{imagesMeme_path}/rizz_cat.jfif',
+		"path": f'{imagesMeme_path}/dirty_rizz.jfif',
 		"replica": 0
 	},
 	{
@@ -72,6 +77,11 @@ trolling_windows = [ # mostly meme :)) # This actually in the dict with title in
 		"replica": 0
 	},
 	{
+		"title": 'YOU CAN\'T STOP THE DINO',
+		"path": f'{gifsMeme_path}/rick_roll_cry.gif',
+		"replica": 0
+	},
+	{
 		"title": 'GYATT Trump Lecture',
 		"path": f'{imagesMeme_path}/trump_mewing.jpg',
 		"replica": 0
@@ -83,7 +93,14 @@ trolling_windows = [ # mostly meme :)) # This actually in the dict with title in
 	}
 	# 'Your mom', 'CDs... CEE DEEZ NUT', 'The diffence between you and the door', 'You monkey'
 ]
-max_replica = 3
+max_replica = 2
+
+# Contain the trolling window that on User screen
+choosed_trolling_windowsWithGif = {}
+
+# Set Limit for number of child window
+current_numsOf_childWindow = 0
+max_numsOf_childWindow = 6
 
 # Value for Dino Size and Screen Resolution
 sample = PhotoImage(file=dino_path)
@@ -133,9 +150,18 @@ def findObj_via_title(title, do):
 
 
 def address_deletedWindow(title, troll_window):
+
+	global current_numsOf_childWindow
+
 	if not dino_is_dragging:
 		print(f'This \'{title}\' window is closed')
 		print('And the Dino gonna chase you!')
+		current_numsOf_childWindow -= 1
+		# create after_cancel(here)
+		if str(troll_window) in choosed_trolling_windowsWithGif.keys():
+			troll_window.after_cancel(choosed_trolling_windowsWithGif[str(troll_window)]['loop'])
+			choosed_trolling_windowsWithGif.pop(str(troll_window))
+		print('Current:', current_numsOf_childWindow)
 		findObj_via_title(title, 'subtract')
 		troll_window.destroy()# What if the user close too many times?
 
@@ -166,14 +192,17 @@ def launch_trolling_window(title, image, x, y, frames, nums_frames):
 
 	findObj_via_title(title, 'add')
 	
-	# handle gif here
+	# if gif then handle gif here
 	if len(frames) > 0:
-		animation_gif(child_window, label, frames, 1, nums_frames)
+		animate_loop = child_window.after(50, lambda: animation_gif(child_window, label, frames, 1, nums_frames))
+		choosed_trolling_windowsWithGif[str(child_window)] = { 'loop': animate_loop }
 
 	return child_window
 
 
 def animation_gif(gif_window, gif_label, gif_frame, current_frame, nums_frames): # animation gif
+
+	global choosed_trolling_windowsWithGif
 	
 	image = gif_frame[current_frame]
 
@@ -183,7 +212,7 @@ def animation_gif(gif_window, gif_label, gif_frame, current_frame, nums_frames):
 	if current_frame == nums_frames:
 		current_frame = 0 # reset the current_frame to 0 when end is reached
 
-	gif_window.after(50, lambda: animation_gif(gif_window, gif_label, gif_frame, current_frame, nums_frames))
+	choosed_trolling_windowsWithGif[str(gif_window)]['loop'] = gif_window.after(50, lambda: animation_gif(gif_window, gif_label, gif_frame, current_frame, nums_frames))
 
 
 def resizing_image_for_dino(path):
@@ -216,6 +245,7 @@ def idle(coordination, destination):
 	global duplicated_sprites
 	global startOf_idleDuplication
 	global dino_is_dragging
+	global current_numsOf_childWindow
 
 	# animation
 	if startOf_idleDuplication:
@@ -238,7 +268,7 @@ def idle(coordination, destination):
 
 		print(choosing_action)
 
-		if choosing_action == 1 and dino_mode == 'Devi': # Only be activated in Devi mode #  
+		if choosing_action == 1 and dino_mode == 'Devi' and current_numsOf_childWindow < max_numsOf_childWindow: # Only be activated in Devi mode #  
 
 			filtered_window = list(filter(lambda window: window['replica'] < max_replica, trolling_windows))
 			if len(filtered_window) == 0: # if all of the window alr reached max replica then just randomly choose all of them
@@ -289,6 +319,9 @@ def idle(coordination, destination):
 
 			drag_destination = [drag_x, drag_y]
 			troll_window = launch_trolling_window(random_trollingWindow['title'], memeFR, child_window_x, child_window_y, photoimage_gifs, frames)
+			current_numsOf_childWindow += 1
+			print('Current:', current_numsOf_childWindow)
+			print('Troll Window ID:', troll_window)
 
 			window.after(running_speed, running, coordination, drag_destination, troll_window)
 
