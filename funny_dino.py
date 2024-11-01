@@ -6,6 +6,9 @@ from data import *
 
 # Problem: set limit of meme review in the user screen. BTW, why the fuck the Dino is so buggy
 
+print('Type of Dino: ', type_of_Dino)
+print('Final mode: ', dino_mode)
+
 if run_dino:
 	window = Tk()
 	window.title("Funny Dino")
@@ -118,6 +121,7 @@ if run_dino:
 
 	# Configure Main Window (The Dino duh)
 	window.geometry(f"{img_width}x{img_height}+{x}+{y}")
+	window.iconphoto(True, PhotoImage(file='sprites/Blue/dino.png'))
 	window.resizable(False, False)
 	window.attributes('-transparentcolor', 'black')
 	window.wm_attributes("-topmost", True)
@@ -282,7 +286,7 @@ if run_dino:
 			duplicated_sprites = []
 			choosing_action = random.randint(1,3)
 
-			print(choosing_action, dino_mode)
+			print(choosing_action)
 
 			if choosing_action == 1 and dino_mode == 'Devi' and current_numsOf_childWindow < max_numsOf_childWindow: # Only be activated in Devi mode #  
 
