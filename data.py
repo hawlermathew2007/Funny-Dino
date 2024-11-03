@@ -149,6 +149,7 @@ dino_path = f'sprites/{type_of_Dino}/dino.png'
 idle_path = f'sprites/{type_of_Dino}/Idle'
 walking_path = f'sprites/{type_of_Dino}/Walking'
 running_path = f'sprites/{type_of_Dino}/Running'
+hurt_path = f'sprites/{type_of_Dino}/Hurt'
 
 # Meme path
 imagesMeme_path = 'meme/images'
@@ -159,7 +160,7 @@ duplicated_sprites = []
 dino_is_flipped = False
 
 idle_index = 0
-idle_time = 600
+idle_time = 500
 idle_sprites = [f'{idle_path}/idle1.png',f'{idle_path}/idle2.png',f'{idle_path}/idle3.png',f'{idle_path}/idle4.png']
 startOf_idleDuplication = True
 
@@ -171,6 +172,14 @@ running_index = 0
 running_sprites = [f'{running_path}/running1.png',f'{running_path}/running2.png',f'{running_path}/running3.png',f'{running_path}/running4.png',
 					f'{running_path}/running5.png',f'{running_path}/running6.png', f'{running_path}/running7.png']
 running_destination_queue = 0
+
+hurt_index = 0
+hurt_delay = 100
+hurt_speed = 400
+hurt_one = False
+hurt_sprites = [f'{hurt_path}/hurt1.png',f'{hurt_path}/hurt2.png',f'{hurt_path}/hurt3.png']
+
+
 dino_is_dragging = False
 
 # Velocity of the Dino

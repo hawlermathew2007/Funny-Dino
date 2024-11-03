@@ -171,7 +171,7 @@ if run_dino:
 
 		if not dino_is_dragging:
 			print(f'This \'{title}\' window is closed')
-			print('And the Dino gonna chase you!')
+			print('The Dino gonna chase and Kick yah!')
 			current_numsOf_childWindow -= 1
 			# create after_cancel(here)
 			if str(troll_window) in choosed_trolling_windowsWithGif.keys():
@@ -180,6 +180,9 @@ if run_dino:
 			print('Current:', current_numsOf_childWindow)
 			findObj_via_title(title, 'subtract')
 			troll_window.destroy()# What if the user close too many times?
+			return
+			# make the Dino chase here
+			window.after(running_speed, running, [x, y], destination, None, "chase")
 
 
 	def launch_trolling_window(title, image, x, y, frames, nums_frames):
@@ -253,6 +256,48 @@ if run_dino:
 
 	def generate_destination():
 		return [random.randint(window_gap, window.winfo_screenwidth() - img_width - window_gap), random.randint(window_gap, window.winfo_screenheight() - img_height - window_gap)]
+
+
+	def ouch_response():
+		print('hi')
+		if dino_mode == "Cute":
+			# make the dino switch to hurt mode
+			print("You hurt the Dino. How dare!")
+			window.after(hurt_delay, hurt)
+
+		if dino_mode == "Devi":
+			# make the dino switch to kick mode
+			# in kick mode make the dino reach the cursor or run in certain step
+			# make the dino kick the cursor and if cannot catch cursor then switch to idle mode
+			print('The Dino gonna punish u!')
+
+
+	def hurt():
+		# in the hurt mode play the hurt animation make the dino, then go to idle mode
+		global hurt_index
+		global hurt_one
+		global label
+		global destination
+
+		# Problems occurs the dino is laggy and not switch to idle mode (Solution may be cancel the current "after")
+		hurt_one = True
+		hurt_image = resizing_image_for_dino(hurt_sprites[hurt_index])
+
+		label.config(image=hurt_image)
+
+		hurt_index += 1
+
+		if hurt_index > len(hurt_sprites) - 1:
+			hurt_index = 0
+			hurt_one = False
+			window.after(idle_time, idle, [x, y], [x, y])
+			return
+
+		window.after(hurt_speed, hurt)
+
+
+	def kick():
+		pass
 
 
 	def idle(coordination, destination):
@@ -344,7 +389,7 @@ if run_dino:
 				print('Troll Window ID:', troll_window)
 
 				# window.after(running_speed, add_shadow, running_speed)
-				window.after(running_speed, running, coordination, drag_destination, troll_window)
+				window.after(running_speed, running, coordination, drag_destination, troll_window, "DRAG")
 
 			else: # for Cute mode, but also for Devi if choosing action isn't 1
 				# window.after(walking_speed, add_shadow, walking_speed)
@@ -356,7 +401,7 @@ if run_dino:
 		window.after(idle_time, idle, coordination, destination)
 
 
-	def running(coordination, destination, target_window): # could need a type parameter like "chase" or "drag_meme"
+	def running(coordination, destination, target_window, _type): # could need a type parameter like "chase" or "drag_meme"
 
 		# have to work on the child window about "how to drag itself"
 
@@ -413,44 +458,52 @@ if run_dino:
 
 		coordination = [x, y]
 
-		# make the child window move if the dino reached the first destinaion
-		if running_destination_queue == 1:
-			# there is a touch between dino and window so add 10 to keep lil distance
-			target_window_width = 0 + img_width
-			if x < window.winfo_screenwidth()/2:
-				target_window_width = -(target_window.winfo_width() + 10)
-			target_window.geometry(f"+{int(x + target_window_width)}+{int(target_window.winfo_y())}")
+		# The Dino Drag the Window
+		if _type == "DRAG":
+			# make the child window move if the dino reached the first destinaion
+			if running_destination_queue == 1:
+				# there is a touch between dino and window so add 10 to keep lil distance
+				target_window_width = 0 + img_width
+				if x < window.winfo_screenwidth()/2:
+					target_window_width = -(target_window.winfo_width() + 10)
+				target_window.geometry(f"+{int(x + target_window_width)}+{int(target_window.winfo_y())}")
 
-		# if dino reached first destination then change to second destination with sprites be reversed
-		# print("Compare Coordination and Destination: ",coordination, destination)
-		if coordination == destination:
-			# there is a touch between dino and window so add 10 to keep lil distance
-			x = destination[0]
-			y = destination[1]
-			running_index = 0
-			if running_destination_queue == 0:
-				running_sprites.reverse()
-				running_destination_queue = 1
-				random_window_gap = int(window_gap * (random.random() + 1))
-				drag_length = target_window.winfo_width()*2 + random_window_gap + img_width + 10
-				if target_window.winfo_x() > window.winfo_screenwidth()/2:
-					drag_length = -(target_window.winfo_width() + random_window_gap + img_width + 10)
-				destination = [target_window.winfo_x() + drag_length, target_window.winfo_y() + target_window.winfo_height()/2 - img_height/2] # 'New Second Destination'
-			else:
-				window.wm_attributes("-topmost", True)
-				window.lift()
-				window.focus_force()
-				running_sprites.reverse()
-				running_destination_queue = 0
-				dino_is_dragging = False
-				target_window.unbind("<Button-1>")
-				target_window.unbind("<B1-Motion>")
-				destination = generate_destination()
-				idle(coordination, destination)
-				return
+			# if dino reached first destination then change to second destination with sprites be reversed
+			# print("Compare Coordination and Destination: ",coordination, destination)
+			if coordination == destination:
+				# there is a touch between dino and window so add 10 to keep lil distance
+				x = destination[0]
+				y = destination[1]
+				running_index = 0
+				if running_destination_queue == 0:
+					running_sprites.reverse()
+					running_destination_queue = 1
+					random_window_gap = int(window_gap * (random.random() + 1))
+					drag_length = target_window.winfo_width()*2 + random_window_gap + img_width + 10
+					if target_window.winfo_x() > window.winfo_screenwidth()/2:
+						drag_length = -(target_window.winfo_width() + random_window_gap + img_width + 10)
+					destination = [target_window.winfo_x() + drag_length, target_window.winfo_y() + target_window.winfo_height()/2 - img_height/2] # 'New Second Destination'
+				else:
+					window.wm_attributes("-topmost", True)
+					window.lift()
+					window.focus_force()
+					running_sprites.reverse()
+					running_destination_queue = 0
+					dino_is_dragging = False
+					target_window.unbind("<Button-1>")
+					target_window.unbind("<B1-Motion>")
+					destination = generate_destination()
+					idle(coordination, destination)
+					return
+
+		if _type == "CHASE": # Will trigger when the user close the window
+			pass
+
+		if _type == "KICK": # Will trigger when the user double click the dino
+			pass
 
 		# continue running
-		window.after(running_speed, running, coordination, destination, target_window)
+		window.after(running_speed, running, coordination, destination, target_window, _type)
 
 
 	def walking(coordination, destination): #coordination, destination
@@ -523,7 +576,7 @@ if run_dino:
 
 	keyboard.add_hotkey("shift+6", destroy_window)
 
-	window.bind('<Double-1>', lambda e: print('- You double-clicked the Dino'))
+	window.bind('<Double-1>', lambda e: ouch_response() if not hurt_one else None)
 
 	# sub_label = Label(window, bg='black', width=shadow_width, height=shadow_height, image= shadow)
 	# sub_label.image = shadow
