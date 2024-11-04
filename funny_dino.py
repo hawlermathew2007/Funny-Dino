@@ -9,6 +9,8 @@ from data import *
 print('Type of Dino: ', type_of_Dino)
 print('Final mode: ', dino_mode)
 
+current_after = None
+
 if run_dino:
 	window = Tk()
 	window.title("Funny Dino")
@@ -140,6 +142,30 @@ if run_dino:
 	# 	window.after(speed, add_shadow, speed)
 
 
+	def update_current_after(element):
+		global current_after
+		global startOf_idleDuplication
+		global idle_sprites
+		global idle_index
+		global duplicated_sprites
+		global running_index
+		global running_destination_queue
+		global dino_is_dragging
+		global walking_index
+
+		if hurt_one: # if the dino is hurt, reset all
+			startOf_idleDuplication = True
+			idle_sprites = [f'{idle_path}/idle1.png',f'{idle_path}/idle2.png',f'{idle_path}/idle3.png',f'{idle_path}/idle4.png']
+			idle_index = 0
+			duplicated_sprites = []
+			running_index = 0
+			running_destination_queue = 0
+			dino_is_dragging = False
+			walking_index = 0
+
+		current_after = element
+
+
 	def check_close_signal():
 		while True:
 			if os.path.exists("close_signal.txt"):
@@ -182,7 +208,7 @@ if run_dino:
 			troll_window.destroy()# What if the user close too many times?
 			return
 			# make the Dino chase here
-			window.after(running_speed, running, [x, y], destination, None, "chase")
+			update_current_after(window.after(running_speed, running, [x, y], destination, None, "chase"))
 
 
 	def launch_trolling_window(title, image, x, y, frames, nums_frames):
@@ -231,7 +257,7 @@ if run_dino:
 		if current_frame == nums_frames:
 			current_frame = 0 # reset the current_frame to 0 when end is reached
 
-		choosed_trolling_windowsWithGif[str(gif_window)]['loop'] = gif_window.after(50, lambda: animation_gif(gif_window, gif_label, gif_frame, current_frame, nums_frames))
+		choosed_trolling_windowsWithGif[str(gif_window)]['loop'] = gif_window.after(gif_fps, lambda: animation_gif(gif_window, gif_label, gif_frame, current_frame, nums_frames))
 
 
 	def resizing_image_for_dino(path):
@@ -259,11 +285,11 @@ if run_dino:
 
 
 	def ouch_response():
-		print('hi')
+		print(hurt_one)
+		window.after_cancel(current_after)
 		if dino_mode == "Cute":
-			# make the dino switch to hurt mode
 			print("You hurt the Dino. How dare!")
-			window.after(hurt_delay, hurt)
+			update_current_after(window.after(hurt_delay, hurt))
 
 		if dino_mode == "Devi":
 			# make the dino switch to kick mode
@@ -290,10 +316,10 @@ if run_dino:
 		if hurt_index > len(hurt_sprites) - 1:
 			hurt_index = 0
 			hurt_one = False
-			window.after(idle_time, idle, [x, y], [x, y])
+			update_current_after(window.after(idle_time, idle, [x, y], [x, y]))
 			return
 
-		window.after(hurt_speed, hurt)
+		update_current_after(window.after(hurt_speed, hurt))
 
 
 	def kick():
@@ -389,16 +415,16 @@ if run_dino:
 				print('Troll Window ID:', troll_window)
 
 				# window.after(running_speed, add_shadow, running_speed)
-				window.after(running_speed, running, coordination, drag_destination, troll_window, "DRAG")
+				update_current_after(window.after(running_speed, running, coordination, drag_destination, troll_window, "DRAG"))
 
 			else: # for Cute mode, but also for Devi if choosing action isn't 1
 				# window.after(walking_speed, add_shadow, walking_speed)
-				window.after(walking_speed, walking, coordination, destination)
+				update_current_after(window.after(walking_speed, walking, coordination, destination))
 
 			return
 
 		# continue idle if havent done animation
-		window.after(idle_time, idle, coordination, destination)
+		update_current_after(window.after(idle_time, idle, coordination, destination))
 
 
 	def running(coordination, destination, target_window, _type): # could need a type parameter like "chase" or "drag_meme"
@@ -493,7 +519,7 @@ if run_dino:
 					target_window.unbind("<Button-1>")
 					target_window.unbind("<B1-Motion>")
 					destination = generate_destination()
-					idle(coordination, destination)
+					update(window.after(10, idle, coordination, destination))
 					return
 
 		if _type == "CHASE": # Will trigger when the user close the window
@@ -503,7 +529,7 @@ if run_dino:
 			pass
 
 		# continue running
-		window.after(running_speed, running, coordination, destination, target_window, _type)
+		update_current_after(window.after(running_speed, running, coordination, destination, target_window, _type))
 
 
 	def walking(coordination, destination): #coordination, destination
@@ -566,7 +592,7 @@ if run_dino:
 			return
 
 		# continue walking
-		window.after(walking_speed, walking, coordination, destination)
+		update_current_after(window.after(walking_speed, walking, coordination, destination))
 
 
 	threading.Thread(target=check_close_signal, daemon=True).start()

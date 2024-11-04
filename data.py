@@ -154,6 +154,7 @@ hurt_path = f'sprites/{type_of_Dino}/Hurt'
 # Meme path
 imagesMeme_path = 'meme/images'
 gifsMeme_path = 'meme/gifs'
+gif_fps = 50
 
 # Sprite
 duplicated_sprites = []
@@ -174,8 +175,8 @@ running_sprites = [f'{running_path}/running1.png',f'{running_path}/running2.png'
 running_destination_queue = 0
 
 hurt_index = 0
-hurt_delay = 100
-hurt_speed = 400
+hurt_delay = 10
+hurt_speed = 250
 hurt_one = False
 hurt_sprites = [f'{hurt_path}/hurt1.png',f'{hurt_path}/hurt2.png',f'{hurt_path}/hurt3.png']
 
