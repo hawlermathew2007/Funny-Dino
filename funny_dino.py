@@ -107,7 +107,7 @@ if run_dino:
 	# Value for Dino Size and Screen Resolution
 	sample = PhotoImage(file=dino_path)
 	# sample_shadow = PhotoImage(file=shadow_path)
-	desire_size = 50
+	desire_size = 55
 	scale = desire_size/sample.width()
 	img_width = int(sample.width() * scale)
 	img_height = int(sample.height() * scale)
@@ -153,7 +153,7 @@ if run_dino:
 		global dino_is_dragging
 		global walking_index
 
-		if hurt_one: # if the dino is hurt, reset all
+		if ouch_one: # if the dino is hurt, reset all
 			startOf_idleDuplication = True
 			idle_sprites = [f'{idle_path}/idle1.png',f'{idle_path}/idle2.png',f'{idle_path}/idle3.png',f'{idle_path}/idle4.png']
 			idle_index = 0
@@ -191,6 +191,10 @@ if run_dino:
 				print(trolling_window)
 
 
+	def move_cursor(x, y):
+		pyautogui.moveTo(x, y)
+
+
 	def address_deletedWindow(title, troll_window):
 
 		global current_numsOf_childWindow
@@ -205,10 +209,13 @@ if run_dino:
 				choosed_trolling_windowsWithGif.pop(str(troll_window))
 			print('Current:', current_numsOf_childWindow)
 			findObj_via_title(title, 'subtract')
+			coordination = [x, y]
+			destination = list(pyautogui.position())
+			window.after_cancel(current_after)
+			update_current_after(window.after(running_speed, running, coordination, destination, None, "CHASE"))
 			troll_window.destroy()# What if the user close too many times?
 			return
 			# make the Dino chase here
-			update_current_after(window.after(running_speed, running, [x, y], destination, None, "chase"))
 
 
 	def launch_trolling_window(title, image, x, y, frames, nums_frames):
@@ -285,28 +292,26 @@ if run_dino:
 
 
 	def ouch_response():
-		print(hurt_one)
+		print(ouch_one)
 		window.after_cancel(current_after)
 		if dino_mode == "Cute":
 			print("You hurt the Dino. How dare!")
 			update_current_after(window.after(hurt_delay, hurt))
 
 		if dino_mode == "Devi":
-			# make the dino switch to kick mode
-			# in kick mode make the dino reach the cursor or run in certain step
-			# make the dino kick the cursor and if cannot catch cursor then switch to idle mode
 			print('The Dino gonna punish u!')
+			update_current_after(window.after(kick_delay, kick))
 
 
 	def hurt():
 		# in the hurt mode play the hurt animation make the dino, then go to idle mode
 		global hurt_index
-		global hurt_one
+		global ouch_one
 		global label
 		global destination
 
 		# Problems occurs the dino is laggy and not switch to idle mode (Solution may be cancel the current "after")
-		hurt_one = True
+		ouch_one = True
 		hurt_image = resizing_image_for_dino(hurt_sprites[hurt_index])
 
 		label.config(image=hurt_image)
@@ -315,15 +320,17 @@ if run_dino:
 
 		if hurt_index > len(hurt_sprites) - 1:
 			hurt_index = 0
-			hurt_one = False
+			ouch_one = False
 			update_current_after(window.after(idle_time, idle, [x, y], [x, y]))
 			return
 
 		update_current_after(window.after(hurt_speed, hurt))
 
 
-	def kick():
-		pass
+	def kick(): # display kick animation here
+		coordination = [x, y]
+		destination = list(pyautogui.position())
+		update_current_after(window.after(running_speed, running, coordination, destination, None, 'KICK'))
 
 
 	def idle(coordination, destination):
@@ -485,6 +492,7 @@ if run_dino:
 		coordination = [x, y]
 
 		# The Dino Drag the Window
+		# may need to fix the gap here
 		if _type == "DRAG":
 			# make the child window move if the dino reached the first destinaion
 			if running_destination_queue == 1:
@@ -519,14 +527,65 @@ if run_dino:
 					target_window.unbind("<Button-1>")
 					target_window.unbind("<B1-Motion>")
 					destination = generate_destination()
-					update(window.after(10, idle, coordination, destination))
+					update_current_after(window.after(10, idle, coordination, destination))
 					return
 
+
+		# should add a bool to prevent user clicking the dino and eventually collapse
 		if _type == "CHASE": # Will trigger when the user close the window
-			pass
+			
+			global current_chase_step
+			global on_dumping_trash
+
+			touch_mouth_range = 10 # this just simply let the cursor close to the dino mouth not the topleft or top right
+			# chase the cursor here
+			if not on_dumping_trash: # remember to adjust on_dumping_trash at the end
+				current_chase_step += 1
+				cursor_destination = list(pyautogui.position())
+				actual_destination = [cursor_destination[0] + img_width, cursor_destination[1] - touch_mouth_range]
+				hasReach = coordination == actual_destination
+
+				# this 'if' is just make the program more rational (reach correctly)
+				if not dino_is_flipped:
+					actual_destination = [cursor_destination[0], cursor_destination[1] - touch_mouth_range]
+					hasReach = coordination == actual_destination
+
+				# decide continue to chase or not
+				if hasReach:
+					current_chase_step = 0
+					trash_coordination = [0, window.winfo_screenheight()/2]
+					on_dumping_trash = True
+					print('Grab cursor successfully')
+					update_current_after(window.after(chase_speed, running, coordination, trash_coordination, target_window, _type))
+					return
+
+				if current_chase_step > max_chase_steps:
+					print('Run out Step')
+					current_chase_step = 0
+					destination = generate_destination()
+					update_current_after(window.after(idle_time, idle, coordination, destination))
+					return
+
+			# dragging the cursor to trash location here
+			else:
+				move_cursor_thread = threading.Thread(target=move_cursor, args=(coordination[0], coordination[1] + touch_mouth_range), daemon=True)
+				move_cursor_thread.start()
+				# when the dino done dragging the cursor to trash
+				if coordination == destination:
+					on_dumping_trash = False
+					new_destination = [80, destination[1]]
+					update_current_after(window.after(walking_speed, walking, coordination, new_destination))
+					return
+				update_current_after(window.after(chase_speed, running, coordination, destination, None, _type))
+				return
+				
+			update_current_after(window.after(chase_speed, running, coordination, actual_destination, None, _type))
+			return
+
 
 		if _type == "KICK": # Will trigger when the user double click the dino
 			pass
+
 
 		# continue running
 		update_current_after(window.after(running_speed, running, coordination, destination, target_window, _type))
@@ -595,14 +654,15 @@ if run_dino:
 		update_current_after(window.after(walking_speed, walking, coordination, destination))
 
 
-	threading.Thread(target=check_close_signal, daemon=True).start()
+	thread_check_close_signal = threading.Thread(target=check_close_signal, daemon=True)
+	thread_check_close_signal.start()
 
 	dino = resizing_image_for_dino(dino_path)
 	# shadow = resizing_image(shadow_path, shadow_width, shadow_height)
 
 	keyboard.add_hotkey("shift+6", destroy_window)
 
-	window.bind('<Double-1>', lambda e: ouch_response() if not hurt_one else None)
+	window.bind('<Double-1>', lambda e: ouch_response() if not ouch_one or not dino_is_dragging else None)
 
 	# sub_label = Label(window, bg='black', width=shadow_width, height=shadow_height, image= shadow)
 	# sub_label.image = shadow

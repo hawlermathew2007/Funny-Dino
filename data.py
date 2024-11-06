@@ -1,5 +1,6 @@
 from tkinter import *
 from PIL import Image, ImageTk
+import pyautogui
 import keyboard
 import random
 import threading
@@ -150,6 +151,7 @@ idle_path = f'sprites/{type_of_Dino}/Idle'
 walking_path = f'sprites/{type_of_Dino}/Walking'
 running_path = f'sprites/{type_of_Dino}/Running'
 hurt_path = f'sprites/{type_of_Dino}/Hurt'
+kick_path = f'sprites/{type_of_Dino}/Kick'
 
 # Meme path
 imagesMeme_path = 'meme/images'
@@ -174,17 +176,29 @@ running_sprites = [f'{running_path}/running1.png',f'{running_path}/running2.png'
 					f'{running_path}/running5.png',f'{running_path}/running6.png', f'{running_path}/running7.png']
 running_destination_queue = 0
 
+ouch_one = False
+
 hurt_index = 0
 hurt_delay = 10
 hurt_speed = 250
-hurt_one = False
 hurt_sprites = [f'{hurt_path}/hurt1.png',f'{hurt_path}/hurt2.png',f'{hurt_path}/hurt3.png']
 
+kick_index = 0
+kick_delay = 10
+kick_speed = 250
+kick_sprites = [f'{kick_path}/kick1.png',f'{kick_path}/kick2.png',f'{kick_path}/hurt3.png']
 
+# Drag
 dino_is_dragging = False
 
+# Chase
+chase_speed = 10
+on_dumping_trash = False
+current_chase_step = 0
+max_chase_steps = 1000
+
 # Velocity of the Dino
-walking_speed = 35 # in millisecond
-running_speed = 25
+walking_speed = 32 # in millisecond
+running_speed = 18
 walking_step = 2
 running_step = 3
