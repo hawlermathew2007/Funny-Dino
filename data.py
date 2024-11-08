@@ -6,6 +6,10 @@ import random
 import threading
 import os
 import time
+import pygame
+
+# Initialize Sound
+pygame.mixer.init()
 
 # decide to run dino or not
 run_dino = False
@@ -23,7 +27,7 @@ indexOf_typesDino = 0
 # -----------! Window for the user choose the mode and dino type !-----------
 opt_window = Tk()
 opt_window.title("Funny Dino's \"Menu\"")
-opt_window.iconphoto(True, PhotoImage(file='sprites/Blue/dino.png'))
+opt_window.iconphoto(True, PhotoImage(file='icon/icon.png'))
 opt_window.configure(background='#FAEDCB')
 opt_window.resizable(False, False)
 
@@ -153,6 +157,9 @@ running_path = f'sprites/{type_of_Dino}/Running'
 hurt_path = f'sprites/{type_of_Dino}/Hurt'
 kick_path = f'sprites/{type_of_Dino}/Kick'
 
+# Sound Path
+sound_path = 'sounds'
+
 # Meme path
 imagesMeme_path = 'meme/images'
 gifsMeme_path = 'meme/gifs'
@@ -196,6 +203,7 @@ chase_speed = 10
 on_dumping_trash = False
 current_chase_step = 0
 max_chase_steps = 1000
+haveJust_done = False
 
 # Velocity of the Dino
 walking_speed = 32 # in millisecond

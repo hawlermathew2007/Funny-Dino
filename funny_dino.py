@@ -142,6 +142,11 @@ if run_dino:
 	# 	window.after(speed, add_shadow, speed)
 
 
+	def play_sound(file):
+		pygame.mixer.music.load(f'{sound_path}/{file}')
+		pygame.mixer.music.play(loops=0)
+
+
 	def update_current_after(element):
 		global current_after
 		global startOf_idleDuplication
@@ -152,8 +157,10 @@ if run_dino:
 		global running_destination_queue
 		global dino_is_dragging
 		global walking_index
+		global haveJust_done
 
-		if ouch_one: # if the dino is hurt, reset all
+		if ouch_one or haveJust_done: # if the dino is hurt, reset all
+			haveJust_done = False
 			startOf_idleDuplication = True
 			idle_sprites = [f'{idle_path}/idle1.png',f'{idle_path}/idle2.png',f'{idle_path}/idle3.png',f'{idle_path}/idle4.png']
 			idle_index = 0
@@ -347,7 +354,7 @@ if run_dino:
 
 		# animation
 		if startOf_idleDuplication:
-			duplicated_sprites = idle_sprites * random.randint(3, 6)
+			duplicated_sprites = idle_sprites * random.randint(4, 6)
 			startOf_idleDuplication = False
 
 		idle_image = resizing_image_for_dino(duplicated_sprites[idle_index])
@@ -355,6 +362,7 @@ if run_dino:
 		label.config(image=idle_image)
 
 		idle_index += 1
+		print(idle_index)
 		
 		# choose check if the animation is finished and decide to do devi action or continue wandering
 		if idle_index >= len(duplicated_sprites):
@@ -552,6 +560,7 @@ if run_dino:
 
 				# decide continue to chase or not
 				if hasReach:
+					play_sound('bite.mp3')
 					current_chase_step = 0
 					trash_coordination = [0, window.winfo_screenheight()/2]
 					on_dumping_trash = True
@@ -572,6 +581,7 @@ if run_dino:
 				move_cursor_thread.start()
 				# when the dino done dragging the cursor to trash
 				if coordination == destination:
+					haveJust_done = True
 					on_dumping_trash = False
 					new_destination = [80, destination[1]]
 					update_current_after(window.after(walking_speed, walking, coordination, new_destination))
@@ -686,9 +696,6 @@ if run_dino:
  
 # def running(event):
 #     window.geometry(f"+{int(event.x_root - img_width/2)}+{int(event.y_root - img_height/2)}")
-
-# label.bind('<Button-1>', running)
-# label.bind("<B1-Motion>", running)
 
 # cute dino: has angry mode (when user approach the close dino button or close the tab), get hurt version
 # smirking[evil] version (occurs when it poop or drag a sarcastic note) and falling baby
