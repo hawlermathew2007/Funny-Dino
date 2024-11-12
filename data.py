@@ -191,9 +191,9 @@ hurt_speed = 250
 hurt_sprites = [f'{hurt_path}/hurt1.png',f'{hurt_path}/hurt2.png',f'{hurt_path}/hurt3.png']
 
 kick_index = 0
-kick_delay = 10
+kick_delay = 300
 kick_speed = 250
-kick_sprites = [f'{kick_path}/kick1.png',f'{kick_path}/kick2.png',f'{kick_path}/hurt3.png']
+kick_sprites = [f'{kick_path}/kick1.png',f'{kick_path}/kick2.png',f'{kick_path}/kick3.png']
 
 # Drag
 dino_is_dragging = False
@@ -210,3 +210,7 @@ walking_speed = 32 # in millisecond
 running_speed = 18
 walking_step = 2
 running_step = 3
+
+# Cursor
+cursor_speed = 6
+cursor_step = 2

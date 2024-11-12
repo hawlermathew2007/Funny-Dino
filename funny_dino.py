@@ -340,6 +340,44 @@ if run_dino:
 		update_current_after(window.after(running_speed, running, coordination, destination, None, 'KICK'))
 
 
+	def kicking(coordination, destination, cursor_destination):
+		# in the hurt mode play the hurt animation make the dino, then go to idle mode
+		global kick_index
+		global ouch_one
+		global label
+
+		# Problems occurs the dino is laggy and not switch to idle mode (Solution may be cancel the current "after")
+		ouch_one = True
+		dino_is_flipped = True
+		kick_image = resizing_image_for_dino(kick_sprites[kick_index])
+
+		label.config(image=kick_image)
+
+		kick_index += 1
+
+		cursor_coordination = list(pyautogui.position())
+		cursor_x = cursor_coordination[0]
+		cursor_x -= cursor_step
+
+		move_cursor_thread = threading.Thread(target=move_cursor, args=(cursor_x, cursor_destination[1]), daemon=True)
+		move_cursor_thread.start()
+
+		if kick_index > len(kick_sprites) - 1:
+			kick_index = len(kick_sprites) - 1
+			print(cursor_coordination)
+			print('Destination:', cursor_destination)
+			if cursor_coordination == cursor_destination:
+				print('cursor in trash')
+				kick_index = 0
+				ouch_one = False
+				update_current_after(window.after(idle_time, idle, [x, y], [x, y]))
+				return
+			update_current_after(window.after(cursor_speed, kicking, coordination, destination, cursor_destination))
+			return
+
+		update_current_after(window.after(kick_speed, kicking, coordination, destination, cursor_destination))
+
+
 	def idle(coordination, destination):
 		# change the image of the dino with sprite with the walking_speed of 50 maybe
 		# the duration of the idle should be random
@@ -453,6 +491,8 @@ if run_dino:
 		global label
 		global dino_is_flipped
 		global dino_is_dragging
+		global current_chase_step
+		global on_dumping_trash
 
 		# is created to know what the dino's direction
 		x_relate = coordination[0] - destination[0]
@@ -541,9 +581,6 @@ if run_dino:
 
 		# should add a bool to prevent user clicking the dino and eventually collapse
 		if _type == "CHASE": # Will trigger when the user close the window
-			
-			global current_chase_step
-			global on_dumping_trash
 
 			touch_mouth_range = 10 # this just simply let the cursor close to the dino mouth not the topleft or top right
 			# chase the cursor here
@@ -594,7 +631,53 @@ if run_dino:
 
 
 		if _type == "KICK": # Will trigger when the user double click the dino
-			pass
+
+			touch_mouth_range = 10 # this just simply let the cursor close to the dino mouth not the topleft or top right
+			# chase the cursor here
+			if not on_dumping_trash: # remember to adjust on_dumping_trash at the end
+				current_chase_step += 1
+				cursor_destination = list(pyautogui.position())
+				actual_destination = [cursor_destination[0] + img_width, cursor_destination[1] - touch_mouth_range]
+				hasReach = coordination == actual_destination
+
+				# this 'if' is just make the program more rational (reach correctly)
+				if not dino_is_flipped:
+					actual_destination = [cursor_destination[0], cursor_destination[1] - touch_mouth_range]
+					hasReach = coordination == actual_destination
+
+				# decide continue to chase or not
+				if hasReach:
+					play_sound('bite.mp3')
+					current_chase_step = 0
+					trash_coordination = [window.winfo_screenwidth()/2 - img_width/2, window.winfo_screenheight()/2 - img_height/2]
+					on_dumping_trash = True
+					print('Grab cursor successfully')
+					update_current_after(window.after(chase_speed, running, coordination, trash_coordination, target_window, _type))
+					return
+
+				if current_chase_step > max_chase_steps:
+					print('Run out Step')
+					current_chase_step = 0
+					destination = generate_destination()
+					update_current_after(window.after(idle_time, idle, coordination, destination))
+					return
+
+			# dragging the cursor to trash location here
+			else:
+				move_cursor_thread = threading.Thread(target=move_cursor, args=(coordination[0], coordination[1] + touch_mouth_range), daemon=True)
+				move_cursor_thread.start()
+				# when the dino done dragging the cursor to trash
+				if coordination == destination:
+					haveJust_done = True
+					on_dumping_trash = False
+					cursor_trash_destination = [0, window.winfo_screenheight()/2]
+					update_current_after(window.after(kick_delay, kicking, coordination, destination, cursor_trash_destination))
+					return
+				update_current_after(window.after(chase_speed, running, coordination, destination, None, _type))
+				return
+				
+			update_current_after(window.after(chase_speed, running, coordination, actual_destination, None, _type))
+			return
 
 
 		# continue running
