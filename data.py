@@ -95,5 +95,68 @@ walking_step = 2
 running_step = 3
 
 # Cursor
+cursor_x = 0
+set_cursor_x = True
+
 cursor_speed = 6
 cursor_step = 2
+
+# Trolling Windows Image and Gif
+default_images = {
+    'threat.jpg': 'DARE DEVILLL',
+    'holy_damn.png': 'Uhmm... Terrorist Jutsu',
+    'mewing_cat.jpeg': 'MEOW MEOW, THE CAT CAN MEWWW',
+    'pee_rizz.jpg': 'Hmmm, insanitary meow meow rizz :D',
+    'rizz_cat.jfif': 'Roblox Cat :]',
+    'cat-pointing-laughing.png': 'JOKESONYOU >:DD',
+    'deez_nuts.jpg': 'JUST LOOKKK!!!',
+    'villain_rizz.png': 'Dirty Dino SOmeTiMes',
+    'trump_mewing.jpg': 'GYATT Trump Lecture',
+    'funny_dog.png': 'Your Bro\'s Face when hEAr YoUr jOkes',
+}
+
+default_gifs = {
+    'among_us_twerking.gif': 'SMELL DA SUXY ASS',
+    'rick_roll.gif': 'Old. but Gold meme :)',
+    'rick_roll_cry.gif': 'YOU CAN\'T STOP THE DINO',
+}
+
+default_memes = list(default_gifs.keys()) + list(default_images.keys())
+
+gifs = []
+images = []
+trolling_windows = []
+
+for gif in os.listdir(gifsMeme_path):
+	if gif in list(default_gifs.keys()):
+		gifs.append({
+			"title": default_gifs[gif],
+			"path": f'{gifsMeme_path}/{gif}',
+			"replica": 0
+		})
+	else:
+		gifs.append({
+			"title": os.path.splitext(gif)[0],
+			"path": f'{gifsMeme_path}/{gif}',
+			"replica": 0
+		})
+
+for image in os.listdir(imagesMeme_path):
+	if image in list(default_images.keys()):
+		images.append({
+			"title": default_images[image],
+			"path": f'{imagesMeme_path}/{image}',
+			"replica": 0
+		})
+	else:
+		images.append({
+			"title": os.path.splitext(image)[0],
+			"path": f'{imagesMeme_path}/{image}',
+			"replica": 0
+		})
+
+trolling_windows = gifs + images
+random.shuffle(trolling_windows)
+
+
+max_replica = 2

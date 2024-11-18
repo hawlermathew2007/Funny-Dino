@@ -2,6 +2,7 @@ from data import *
 
 # There might be a new window for adjusting the dino size and adjust the sound that the dino cause
 # Also I might need to add the shadow for dino lmao
+# Maybe I should make another window for uploading your meme with proper title?
 
 current_after = None
 
@@ -11,94 +12,17 @@ with open("signal_activated.txt", "w") as f:
 window = Tk()
 window.title("Funny Dino")
 
+# -------------- THERE ARE SOME DATA THAT CAN'T BE PUT TO DATA FILE --------------#
+
 # Child Window
 childWindow_width_limitation = window.winfo_screenwidth()/4
-trolling_windows = [ # mostly meme :)) # This actually in the dict with title in a list
-	{
-		"title": 'DARE DEVILLL',
-		"path": f'{imagesMeme_path}/threat.jpg',
-		"replica": 0
-	},
-	{
-		"title": 'Uhmm... Terrorist Jutsu',
-		"path": f'{imagesMeme_path}/holy_damn.png',
-		"replica": 0
-	},
-	{
-		"title": 'SMELL DA SUXY ASS',
-		"path": f'{gifsMeme_path}/among_us_twerking.gif',
-		"replica": 0
-	},
-	{
-		"title": 'Old. but Gold meme :)',
-		"path": f'{gifsMeme_path}/rick_roll.gif',
-		"replica": 0
-	},
-	{
-		"title": 'MEOW MEOW, THE CAT CAN MEWWW',
-		"path": f'{imagesMeme_path}/mewing_cat.jpeg',
-		"replica": 0
-	},
-	{
-		"title": 'Hmmm, insanitary meow meow rizz :D',
-		"path": f'{imagesMeme_path}/pee_rizz.jpg',
-		"replica": 0
-	},
-	{
-		"title": 'Roblox Cat :]',
-		"path": f'{imagesMeme_path}/rizz_cat.jfif',
-		"replica": 0
-	},
-	{
-		"title": 'Cat can Romantic Rizz (O-o)',
-		"path": f'{imagesMeme_path}/dirty_rizz.jfif',
-		"replica": 0
-	},
-	{
-		"title": 'JOKESONYOU >:DD',
-		"path": f'{imagesMeme_path}/cat-pointing-laughing.png',
-		"replica": 0
-	},
-	{
-		"title": 'JUST LOOKKK!!!',
-		"path": f'{imagesMeme_path}/deez_nuts.jpg',
-		"replica": 0
-	},
-	{
-		"title": 'GYATTT',
-		"path": f'{imagesMeme_path}/rizz.png',
-		"replica": 0
-	},
-	{
-		"title": 'Dirty Dino SOmeTiMes',
-		"path": f'{imagesMeme_path}/villain_rizz.png',
-		"replica": 0
-	},
-	{
-		"title": 'YOU CAN\'T STOP THE DINO',
-		"path": f'{gifsMeme_path}/rick_roll_cry.gif',
-		"replica": 0
-	},
-	{
-		"title": 'GYATT Trump Lecture',
-		"path": f'{imagesMeme_path}/trump_mewing.jpg',
-		"replica": 0
-	},
-	{
-		"title": 'Your Bro\'s Face when hEAr YoUr jOkes',
-		"path": f'{imagesMeme_path}/funny_dog.png',
-		"replica": 0
-	}
-	# 'Your mom', 'CDs... CEE DEEZ NUT', 'The diffence between you and the door', 'You monkey'
-]
-max_replica = 2
 
 # Contain the trolling window that on User screen
 choosed_trolling_windowsWithGif = {}
 
 # Set Limit for number of child window
 current_numsOf_childWindow = 0
-max_numsOf_childWindow = 6
+max_numsOf_childWindow = 8
 
 # Value for Dino Size and Screen Resolution
 sample = PhotoImage(file=dino_path)
@@ -116,6 +40,7 @@ y = 100
 
 initial_destination = [int(window.winfo_screenwidth()/2 - img_width - 200), int(window.winfo_screenheight()/2 - img_height - 100)]
 
+# -------------- END DATA --------------#
 
 # Configure Main Window (The Dino duh)
 window.geometry(f"{img_width}x{img_height}+{x}+{y}")
@@ -299,6 +224,7 @@ def ouch_response():
 	window.after_cancel(current_after)
 	if dino_mode == "Cute":
 		# print("You hurt the Dino. How dare!")
+		play_sound('hurt.mp3')
 		update_current_after(window.after(hurt_delay, hurt))
 
 	if dino_mode == "Devi":
@@ -342,8 +268,18 @@ def kicking(coordination, destination, cursor_destination):
 	global kick_index
 	global ouch_one
 	global label
+	global dino_is_flipped
+	global cursor_x
+	global set_cursor_x
+	global cursor_coordination
 
 	# Problems occurs the dino is laggy and not switch to idle mode (Solution may be cancel the current "after")
+
+	if set_cursor_x:
+		cursor_coordination = list(pyautogui.position())
+		cursor_x = cursor_coordination[0]
+		set_cursor_x = False
+
 	ouch_one = True
 	dino_is_flipped = True
 	kick_image = resizing_image_for_dino(kick_sprites[kick_index])
@@ -352,18 +288,22 @@ def kicking(coordination, destination, cursor_destination):
 
 	kick_index += 1
 
-	cursor_coordination = list(pyautogui.position())
-	cursor_x = cursor_coordination[0]
 	cursor_x -= cursor_step
+
+	if cursor_x < 0:
+		cursor_x = 0
+
+	cursor_coordination = [cursor_x, cursor_destination[1]]
 
 	move_cursor_thread = threading.Thread(target=move_cursor, args=(cursor_x, cursor_destination[1]), daemon=True)
 	move_cursor_thread.start()
 
+	# The procress of the Cursor go to trash is here
 	if kick_index > len(kick_sprites) - 1:
 		kick_index = len(kick_sprites) - 1
-		# print(cursor_coordination)
-		# print('Destination:', cursor_destination)
+		dino_is_flipped = True
 		if cursor_coordination == cursor_destination:
+			set_cursor_x = True
 			kick_index = 0
 			ouch_one = False
 			destination = generate_destination()
@@ -409,7 +349,7 @@ def idle(coordination, destination):
 
 		# print(choosing_action)
 
-		if choosing_action == 1 and dino_mode == 'Devi' and current_numsOf_childWindow < max_numsOf_childWindow: # Only be activated in Devi mode #  
+		if choosing_action == 1 and dino_mode == 'Devi' and current_numsOf_childWindow < max_numsOf_childWindow and len(trolling_windows) > 0: # Only be activated in Devi mode #  
 
 			filtered_window = list(filter(lambda window: window['replica'] < max_replica, trolling_windows))
 			if len(filtered_window) == 0: # if all of the window alr reached max replica then just randomly choose all of them
@@ -526,7 +466,6 @@ def running(coordination, destination, target_window, _type): # could need a typ
 	if (y >= destination[1] and y_relate <= 0) or (y <= destination[1] and y_relate > 0):
 		y = destination[1]
 
-	play_sound('step.mp3')
 	window.geometry(f"+{int(x)}+{int(y)}")
 
 	coordination = [x, y]
@@ -716,7 +655,6 @@ def walking(coordination, destination): #coordination, destination
 	if (y >= destination[1] and y_relate <= 0) or (y <= destination[1] and y_relate > 0):
 		y = destination[1]
 
-	play_sound('step.mp3')
 	window.geometry(f"+{int(x)}+{int(y)}")
 
 	coordination = [x, y]
@@ -751,7 +689,7 @@ window.bind('<Double-1>', lambda e: ouch_response() if not ouch_one or not dino_
 label = Label(window, bg='black', width=img_width, height=img_height, image= dino)
 label.place(x=0, y=0, width=img_width, height=img_height)
 
-walking([x, y], initial_destination) # should del initial_destination to generate_destination
+walking([x, y], initial_destination)
 # add_shadow(walking_speed)
 
 window.mainloop()
