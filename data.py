@@ -103,22 +103,18 @@ cursor_step = 2
 
 # Trolling Windows Image and Gif
 default_images = {
-    'threat.jpg': 'DARE DEVILLL',
-    'holy_damn.png': 'Uhmm... Terrorist Jutsu',
-    'mewing_cat.jpeg': 'MEOW MEOW, THE CAT CAN MEWWW',
-    'pee_rizz.jpg': 'Hmmm, insanitary meow meow rizz :D',
-    'rizz_cat.jfif': 'Roblox Cat :]',
-    'cat-pointing-laughing.png': 'JOKESONYOU >:DD',
-    'deez_nuts.jpg': 'JUST LOOKKK!!!',
-    'villain_rizz.png': 'Dirty Dino SOmeTiMes',
-    'trump_mewing.jpg': 'GYATT Trump Lecture',
-    'funny_dog.png': 'Your Bro\'s Face when hEAr YoUr jOkes',
+	'threat.png': 'DARE DEVILLL',
+	'skibidi.png': 'Sit on my face ;)',
+	'giga_dino.png': 'A CHAD NEVER SKIP',
+	'cat-pointing-laughing.png': 'JOKESONYOU >:DD',
+	'deez_nuts.png': 'Forever the Nuts',
+	'villain_rizz.png': 'Dino sincere message :3',
 }
 
 default_gifs = {
-    'among_us_twerking.gif': 'SMELL DA SUXY ASS',
-    'rick_roll.gif': 'Old. but Gold meme :)',
-    'rick_roll_cry.gif': 'YOU CAN\'T STOP THE DINO',
+	'among_us_twerking.gif': 'SMELL DA SUXY ASS',
+	'rick_roll.gif': 'Old. but Gold meme :)',
+	'rick_roll_cry.gif': 'YOU CAN\'T STOP THE DINO',
 }
 
 default_memes = list(default_gifs.keys()) + list(default_images.keys())
