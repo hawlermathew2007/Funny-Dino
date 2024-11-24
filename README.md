@@ -9,13 +9,17 @@ This project is made to give the user a cute little dino that walks around your 
 > C:\Your\Current\Path> pip install keyboard
 > C:\Your\Current\Path> pip install Pillow
 ```
-- Open Command Prompt and cd to the directory that contains the funny.py files
+- Open Command Prompt and cd to the directory that contains the funny.py file
 ```dif
 > C:\Your\Current\Path> cd "Funny Dino"
 ```
 - Run "python funny.py" to execute the Dino
 ```dif
 > C:\Your\Current\Path\Funny Dino> python funny.py
+```
+- You can also choose which Dino you like by executing the "choose_your_dino!".py file. There **Blue, Green, Yellow** and **Red**.
+```dif
+> C:\Your\Current\Path\Funny Dino> python "choose_your_dino!.py"
 ```
 - To close it, you can use the key Shift + 6 or Open another Command Prompt to execute the close_dino file by running "python close_dino.py"
 ```dif
