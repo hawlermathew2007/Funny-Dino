@@ -275,11 +275,6 @@ def kicking(coordination, destination, cursor_destination):
 
 	# Problems occurs the dino is laggy and not switch to idle mode (Solution may be cancel the current "after")
 
-	if set_cursor_x:
-		cursor_coordination = list(pyautogui.position())
-		cursor_x = cursor_coordination[0]
-		set_cursor_x = False
-
 	ouch_one = True
 	dino_is_flipped = True
 	kick_image = resizing_image_for_dino(kick_sprites[kick_index])
@@ -287,6 +282,11 @@ def kicking(coordination, destination, cursor_destination):
 	label.config(image=kick_image)
 
 	kick_index += 1
+
+	if set_cursor_x:
+		cursor_coordination = [coordination[0], cursor_destination[1]]
+		cursor_x = cursor_coordination[0]
+		set_cursor_x = False
 
 	cursor_x -= cursor_step
 
@@ -594,8 +594,12 @@ def running(coordination, destination, target_window, _type): # could need a typ
 
 		# dragging the cursor to trash location here
 		else:
-			move_cursor_thread = threading.Thread(target=move_cursor, args=(coordination[0], coordination[1] + touch_mouth_range), daemon=True)
-			move_cursor_thread.start()
+			if dino_is_flipped:
+				move_cursor_thread = threading.Thread(target=move_cursor, args=(coordination[0], coordination[1] + touch_mouth_range), daemon=True)
+				move_cursor_thread.start()
+			else:
+				move_cursor_thread = threading.Thread(target=move_cursor, args=(coordination[0]+img_width, coordination[1] + touch_mouth_range), daemon=True)
+				move_cursor_thread.start()
 			# when the dino done dragging the cursor to trash
 			if coordination == destination:
 				haveJust_done = True
@@ -677,8 +681,6 @@ thread_check_close_signal.start()
 
 dino = resizing_image_for_dino(dino_path)
 # shadow = resizing_image(shadow_path, shadow_width, shadow_height)
-
-keyboard.add_hotkey("shift+6", destroy_window)
 
 window.bind('<Double-1>', lambda e: ouch_response() if not ouch_one or not dino_is_dragging else None)
 

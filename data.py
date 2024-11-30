@@ -1,7 +1,6 @@
 from tkinter import *
 from PIL import Image, ImageTk
 import pyautogui
-import keyboard
 import random
 import threading
 import os
@@ -107,8 +106,8 @@ default_images = {
 	'skibidi.png': 'Sit on my face ;)',
 	'giga_dino.png': 'A CHAD NEVER SKIP',
 	'cat-pointing-laughing.png': 'JOKESONYOU >:DD',
-	'deez_nuts.png': 'Forever the Nuts',
-	'villain_rizz.png': 'Dino sincere message :3',
+	'nuts.png': 'Forever the Nuts',
+	'assignments.png': 'Dino sincere message :3',
 }
 
 default_gifs = {
