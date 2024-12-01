@@ -125,9 +125,10 @@ def move_cursor(x, y):
 
 def address_deletedWindow(title, troll_window):
 
-	global current_numsOf_childWindow
-
 	if not dino_is_dragging:
+		global current_chase_step
+		global current_numsOf_childWindow
+
 		# print(f'This \'{title}\' window is closed')
 		# print('The Dino gonna chase and Kick yah!')
 		current_chase_step = 0 # reset the current step to 0 when the user close another window

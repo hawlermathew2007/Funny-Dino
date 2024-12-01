@@ -45,7 +45,7 @@ sound_path = 'sounds'
 # Meme path
 imagesMeme_path = 'meme/images'
 gifsMeme_path = 'meme/gifs'
-gif_fps = 50
+gif_fps = 80
 
 # Sprite
 duplicated_sprites = []
