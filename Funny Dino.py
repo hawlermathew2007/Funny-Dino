@@ -6,9 +6,6 @@ from data import *
 
 current_after = None
 
-with open("signal_activated.txt", "w") as f:
-	f.write("Dino is activated")
-
 window = Tk()
 window.title("Funny Dino")
 
@@ -93,19 +90,6 @@ def update_current_after(element):
 		walking_index = 0
 
 	current_after = element
-
-
-def check_close_signal():
-	while True:
-		if os.path.exists("close_signal.txt"):
-			os.remove("close_signal.txt")
-			window.destroy()
-			break
-		time.sleep(0.5)  # Check every second
-
-
-def destroy_window():
-	window.destroy()
 
 
 def findObj_via_title(title, do):
@@ -677,9 +661,6 @@ def walking(coordination, destination): #coordination, destination
 	update_current_after(window.after(walking_speed, walking, coordination, destination))
 
 
-thread_check_close_signal = threading.Thread(target=check_close_signal, daemon=True)
-thread_check_close_signal.start()
-
 dino = resizing_image_for_dino(dino_path)
 # shadow = resizing_image(shadow_path, shadow_width, shadow_height)
 
@@ -697,7 +678,6 @@ walking([x, y], initial_destination)
 
 window.mainloop()
 
-os.remove('signal_activated.txt')
 
 # cute dino: has angry mode (when user approach the close dino button or close the tab), get hurt version
 # smirking[evil] version (occurs when it poop or drag a sarcastic note) and falling baby

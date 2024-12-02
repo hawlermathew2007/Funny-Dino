@@ -1,0 +1,2 @@
+@echo off
+taskkill /F /IM "Funny Dino.exe"
