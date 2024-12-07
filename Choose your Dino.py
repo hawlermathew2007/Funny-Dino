@@ -23,7 +23,7 @@ indexOf_typesDino = 0
 
 opt_window = Tk()
 opt_window.title("Funny Dino's \"Menu\"")
-opt_window.iconphoto(True, PhotoImage(file='icon/icon.png'))
+opt_window.iconphoto(True, PhotoImage(file='icon/menu-icon.png'))
 opt_window.configure(background='#FAEDCB')
 opt_window.resizable(False, False)
 
